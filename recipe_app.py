@@ -98,12 +98,44 @@ def main():
             user_speech = recognize_speech_from_mic()[0].lower()
 
             while user_speech[0] not in ["y", "n"]:
-                speak("I didn't catch that. Do you want me to set a time for " + instruction["time_amt"][0] + " " + instruction["time_unit"] + "? Please say yes or no.")
+                speak("Sorry, I didn't catch that. Do you want me to set a time for " + instruction["time_amt"][0] + " " + instruction["time_unit"] + "? Please say yes or no.")
                 user_speech = recognize_speech_from_mic()
 
             if user_speech == "y":
                 speak("Ok, setting a timer...")            
                 speak("How many minutes shall i sleep for before I start the timer? You can extend this afterwards if you need more time.")
+                user_speech = recognize_speech_from_mic()
+                if user_speech.lower() in ["one", "won"]:
+                    user_speech = 1
+                elif user_speech.lower() in ["two", "to", "too"]:
+                    user_speech = 2
+                elif user_speech.lower() in ["three", "tree", "free"]:
+                    user_speech = 3
+                elif user_speech.lower() in ["four", "for", "fir", "fur"]:
+                    user_speech = 4
+                elif user_speech.lower() in ["five"]:
+                    user_speech = 5
+                elif user_speech.lower() in ["six", "sex"]:
+                    user_speech = 6
+                elif user_speech.lower() in ["seven"]:
+                    user_speech = 7
+                elif user_speech.lower() in ["eight", "ate"]:
+                    user_speech = 8
+                elif user_speech.lower() in ["nine"]:
+                    user_speech = 9
+                elif user_speech.lower() in ["ten"]:
+                    user_speech = 10
+
+                if user_speech.isdigit():
+                    speak("Sure, I will sleep for " + user_speech + " minutes.")
+                else:
+                    speak("Sorry, I didn't catch that. I will start the timer in 1 minute.")
+                    user_speech = 1
+                    
+                for i in range(int(user_speech) * 10):
+                    print(i)
+                    time.sleep(1)
+                
         else:
             speak("No timings here. Onto the next instruction")
 
