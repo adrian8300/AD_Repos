@@ -6,7 +6,7 @@ import re
 import sys
 import pyttsx3
 import speech_recognition as sr
-from recipe_functions import get_recipe, recognize_speech_from_mic, speak
+from recipe_functions import get_recipe, recognize_speech_from_mic, speak, get_sleep_request
 
 # -------------------------------------------------------------
 # Good webpage for JavaScript speech
@@ -83,6 +83,7 @@ def main():
 
         while (speech_heard.lower() == "y"):
             speak(instruction_text)
+            
             speak("Do you want me to say that again? Please say yes or no.")
             user_speech = recognize_speech_from_mic()
 
@@ -98,46 +99,47 @@ def main():
             user_speech = recognize_speech_from_mic()[0].lower()
 
             while user_speech[0] not in ["y", "n"]:
-                speak("Sorry, I didn't catch that. Do you want me to set a time for " + instruction["time_amt"][0] + " " + instruction["time_unit"] + "? Please say yes or no.")
+                speak("Sorry, I didn't catch that. Do you want me to set a timer for " + instruction["time_amt"][0] + " " + instruction["time_unit"] + "? Please say yes or no.")
                 user_speech = recognize_speech_from_mic()
 
             if user_speech == "y":
-                speak("Ok, setting a timer...")            
-                speak("How many minutes shall i sleep for before I start the timer? You can extend this afterwards if you need more time.")
-                user_speech = recognize_speech_from_mic()
-                if user_speech.lower() in ["one", "won"]:
-                    user_speech = 1
-                elif user_speech.lower() in ["two", "to", "too"]:
-                    user_speech = 2
-                elif user_speech.lower() in ["three", "tree", "free"]:
-                    user_speech = 3
-                elif user_speech.lower() in ["four", "for", "fir", "fur"]:
-                    user_speech = 4
-                elif user_speech.lower() in ["five"]:
-                    user_speech = 5
-                elif user_speech.lower() in ["six", "sex"]:
-                    user_speech = 6
-                elif user_speech.lower() in ["seven"]:
-                    user_speech = 7
-                elif user_speech.lower() in ["eight", "ate"]:
-                    user_speech = 8
-                elif user_speech.lower() in ["nine"]:
-                    user_speech = 9
-                elif user_speech.lower() in ["ten"]:
-                    user_speech = 10
+                speak("Ok, setting a timer...")
+                timer_sleep = "y"
+                while timer_sleep == "y":
+                    speak("How many minutes shall I wait for until I start the timer? You can extend this later if you need more time.")
+                    sleep_time = get_sleep_request()
 
-                if user_speech.isdigit():
-                    speak("Sure, I will sleep for " + user_speech + " minutes.")
-                else:
-                    speak("Sorry, I didn't catch that. I will start the timer in 1 minute.")
-                    user_speech = 1
-                    
-                for i in range(int(user_speech) * 10):
-                    print(i)
+                    speak("Ok I have slept for " + str(sleep_time) + " minutes. Are you ready for me to start the timer now?")
+                    timer_start = recognize_speech_from_mic()
+
+                    while timer_start[0] not in ["y", "n"]:
+                        speak("I didn't catch that. Do you want me to set the timer now? Please say yes or no.")
+                        timer_start = recognize_speech_from_mic()
+
+                    if timer_start[0] == "y":
+                        timer_sleep = "n"
+
+                speak("Ok, starting timer for " + instruction["time_amt"][0] + " " + instruction["time_unit"] + " now")
+                for i in range(int(instruction["time_amt"][0])):
+                    print(f"{i + 1}")
                     time.sleep(1)
-                
+
+                speak("Ding. Dong - that should be done now.")
+                speak("Are you ready for the next instruction? Say yes to move on or no to make me sleep")
+                user_speech = recognize_speech_from_mic()
+
+                while user_speech[0] not in ["y", "n"]:
+                    speak("I didn't catch that. Do you want wait a bit longer? Please say yes or no.")
+                    user_speech = recognize_speech_from_mic()
+
+                while user_speech[0] == "n":
+                    speak("OK, how much longer shall I sleep for?")
+                    sleep_time = get_sleep_request()
+            else:
+                speak("Ok, I won't set a timer. Moving on to the next instruction.")
         else:
-            speak("No timings here. Onto the next instruction")
+            speak("No timings for this instruction. How long do you want me to wait for until the next instruction?")
+            sleep_time = get_sleep_request()
 
 if __name__ == "__main__":
     main()
