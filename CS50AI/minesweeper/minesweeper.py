@@ -298,10 +298,9 @@ class MinesweeperAI():
         safe_moves_available = self.safes - self.moves_made
 
         if len(safe_moves_available) > 0:
-            safe_move = safe_moves_available.pop()
+            return safe_moves_available.pop()
         else:
-            safe_move = None
-        return safe_move
+            return None
 
     def make_random_move(self):
         """
