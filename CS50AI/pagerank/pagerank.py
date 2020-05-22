@@ -152,13 +152,18 @@ def iterate_pagerank(corpus, damping_factor):
                     x += PageRank[corp] / len(corpus[corp])
 
             new_PageRank = (1 - damping_factor)/N_pages + damping_factor * x
-            
+
+            iteration_change = abs(new_PageRank - PageRank[page])
+
             if page not in rounded:
-                if abs(new_PageRank - PageRank[page]) < 0.001:
+                if iteration_change < 0.0001:
                     rounded.append(page)
-            
+            else:
+                if iteration_change >= 0.0001:
+                    rounded.remove(page)
+
             PageRank[page] = new_PageRank
-            
+
     return PageRank
 
 if __name__ == "__main__":
