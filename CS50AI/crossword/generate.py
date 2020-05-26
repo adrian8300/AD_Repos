@@ -99,8 +99,16 @@ class CrosswordCreator():
         (Remove any values that are inconsistent with a variable's unary
          constraints; in this case, the length of the word.)
         """
-        raise NotImplementedError
+        
+        for var in self.domains:
+            node_consistent = self.domains[var].copy()
+            for word in self.domains[var]:
+                if len(word) != var.length:
+                    node_consistent.remove(word)
+            self.domains[var] = node_consistent
 
+        for var in self.domains:
+            
     def revise(self, x, y):
         """
         Make variable `x` arc consistent with variable `y`.
@@ -121,6 +129,17 @@ class CrosswordCreator():
         Return True if arc consistency is enforced and no domains are empty;
         return False if one or more domains end up empty.
         """
+
+        # queue = all arcs in csp
+        # while queue non-empty:
+        #     (X, Y) = DEQUEUE(queue)
+        #     if REVISE(csp, X, Y):
+        #         if size of X.domain == 0:
+        #             return false
+        #         for each Z in X.neighbors - {Y}:
+        #             ENQUEUE(queue, (Z, X))
+        # return true
+
         raise NotImplementedError
 
     def assignment_complete(self, assignment):
@@ -144,6 +163,10 @@ class CrosswordCreator():
         The first value in the list, for example, should be the one
         that rules out the fewest values among the neighbors of `var`.
         """
+
+        print(assignment)
+
+
         raise NotImplementedError
 
     def select_unassigned_variable(self, assignment):
