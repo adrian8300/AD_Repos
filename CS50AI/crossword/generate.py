@@ -91,7 +91,6 @@ class CrosswordCreator():
         """
         self.enforce_node_consistency()
         self.ac3()
-
         return self.backtrack(dict())
 
     def enforce_node_consistency(self):
