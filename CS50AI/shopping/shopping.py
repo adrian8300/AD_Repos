@@ -29,20 +29,21 @@ def main():
     print(f"True Positive Rate: {100 * sensitivity:.2f}%")
     print(f"True Negative Rate: {100 * specificity:.2f}%")
 
+# Define string mth format to int format
 def mth_str_to_num(mth_str):
     m = {
-        'jan': 1,
-        'feb': 2,
-        'mar': 3,
-        'apr': 4,
-        'may': 5,
-        'jun': 6,
-        'jul': 7,
-        'aug': 8,
-        'sep': 9,
-        'oct': 10,
-        'nov': 11,
-        'dec': 12
+        "jan": 1,
+        "feb": 2,
+        "mar": 3,
+        "apr": 4,
+        "may": 5,
+        "jun": 6,
+        "jul": 7,
+        "aug": 8,
+        "sep": 9,
+        "oct": 10,
+        "nov": 11,
+        "dec": 12
         }
     s = mth_str.lower()
     return m[s]
@@ -76,39 +77,48 @@ def load_data(filename):
     is 1 if Revenue is true, and 0 otherwise.
     """
 
-
-    with open('shopping.csv', newline='') as f:
+    # open csv file
+    with open("shopping.csv", newline='') as f:
         reader = list(csv.DictReader(f))
         data = list(reader)
 
         evidence = []
         label = []
 
-        print(data[1])
+        # work through rows of imported csv data adjusting variable types as required
         for row in data:
-            row['Month'] = mth_str_to_num(row['Month'][:3])
-            row['VisitorType'] = 1 if row['VisitorType'] == 'Returning_Visitor' else 0
-            for header in ['Revenue', 'Weekend']:
+            evidence_row = []
+            row["Month"] = mth_str_to_num(row["Month"][:3])
+            if row["VisitorType"] == "Returning_Visitor":
+                row["VisitorType"] = 1
+            else:
+                row["VisitorType"] = 0
+            for header in ["Revenue", "Weekend"]:
                 if row[header] == "TRUE":
                     row[header] = 1
                 else:
                     row[header] = 0
-            for header in ['Administrative', 'Informational', 'ProductRelated', 'OperatingSystems', 'Browser', 'Region', 'TrafficType']:
+            for header in ["Administrative", "Informational", "ProductRelated", "OperatingSystems", "Browser", "Region", "TrafficType"]:
                 row[header] = int(row[header])
-            for field in ['Administrative_Duration', 'Informational_Duration', 'ProductRelated_Duration', 'BounceRates', 'ExitRates', 'PageValues', 'SpecialDay']:
-                row[field] = float(row[field])
-            
-        print(data)
-    raise NotImplementedError
-
+            for header in ["Administrative_Duration", "Informational_Duration", "ProductRelated_Duration", "BounceRates", "ExitRates", "PageValues", "SpecialDay"]:
+                row[header] = float(row[header])
+            for header in row:
+                if header == "Revenue":
+                    label.append(row[header])
+                else:
+                    evidence_row.append(row[header])
+            evidence.append(evidence_row)
+    return (evidence, label)
 
 def train_model(evidence, labels):
     """
     Given a list of evidence lists and a list of labels, return a
     fitted k-nearest neighbor model (k=1) trained on the data.
     """
-    raise NotImplementedError
-
+    neigh = KNeighborsClassifier(n_neighbors=1)
+    neigh.fit(evidence,labels)
+    
+    return neigh
 
 def evaluate(labels, predictions):
     """
@@ -125,8 +135,33 @@ def evaluate(labels, predictions):
     representing the "true negative rate": the proportion of
     actual negative labels that were accurately identified.
     """
-    raise NotImplementedError
 
+    # define dicts to capture true positives and true negative actual vs predictions
+    true_positives = {
+        "labels": 0,
+        "predictions": 0
+    }
+
+    true_negatives = {
+        "labels": 0,
+        "predictions": 0
+    }
+
+    label_num = range(len(labels))
+
+    for label in label_num:
+        if labels[label] == 1:
+            true_positives["labels"] += 1
+            true_positives["predictions"] += predictions[label]
+        else:
+            true_negatives["labels"] += 1
+            true_negatives["predictions"] += 1 - predictions[label]
+
+    # calc sensitivity and specificity rates
+    sensitivity = true_positives["predictions"]/true_positives["labels"]
+    specificity = true_negatives["predictions"]/true_negatives["labels"]
+
+    return (sensitivity, specificity)
 
 if __name__ == "__main__":
     main()
