@@ -101,10 +101,14 @@ class NimAI():
         Return the Q-value for the state `state` and the action `action`.
         If no Q-value exists yet in `self.q`, return 0.
         """
-        if (state, action) in self.q:
-            return self.q[(state, action)]
-        else:
+        state_action = (tuple(state), action)
+        if len(self.q) == 0:
             return 0
+        else:
+            if state_action in self.q:
+                return self.q[state_action]
+            else:
+                return 0
 
     def update_q_value(self, state, action, old_q, reward, future_rewards):
         """
@@ -122,8 +126,10 @@ class NimAI():
         is the sum of the current reward and estimated future rewards.
         """
 
-        self.q[(state,action)] = old_q + self.alpha * ((reward + future_rewards) - old_q)
+        state_action = (tuple(state),action)
+        new_q = old_q + self.alpha * ((reward + future_rewards) - old_q)
 
+        self.q[state_action] = new_q
 
     def best_future_reward(self, state):
         """
@@ -136,16 +142,17 @@ class NimAI():
         `state`, return 0.
         """
 
-        best_reward = -float("inf")
+        best_reward = 0
 
-        print(best_reward
-        )
-        for (state, action) in self.q:
-            print(action)
-    
-        raise NotImplementedError
-
-
+        if len(self.q) == 0:
+            return 0
+        else:
+            for x in self.q:
+                if x[0] == tuple(state):
+                    state_action = (tuple(state), x[1])
+                    if self.q[state_action] > best_reward:
+                        best_reward = self.q[state_action]
+            return best_reward
 
     def choose_action(self, state, epsilon=True):
         """
@@ -164,14 +171,11 @@ class NimAI():
         """
 
         best_q = -float("inf")
-        print(best_q)
-        print(state)
-        print(Nim.available_actions(state))
 
         if epsilon == False:
             for action in Nim.available_actions(state):
-                if (state, action) in self.q:
-                    new_q = q[(state, action)]
+                if (tuple(state), action) in self.q:
+                    new_q = self.q[(tuple(state), action)]
                 else:
                     new_q = 0
                 if new_q > best_q:
@@ -179,22 +183,27 @@ class NimAI():
                     best_q = new_q
         else:
             if random.uniform(0, 1) < self.epsilon:
-                chosen_action = Nim.available_actions(state).pop()
+                rand_idx = random.randint(0,len(Nim.available_actions(state))-1)
+                for i, action in enumerate(Nim.available_actions(state)):
+                    if i == rand_idx:
+                        chosen_action = action
+                        break
             else:
                 for action in Nim.available_actions(state):
-                    print(self.q)
-                    x = (state, action) 
-                    print(x)
-                    if (state, action) in self.q:
-                        new_q = self.q[(state, action)]
-                    else:
+                    x = (tuple(state), action) 
+                    if len(self.q) == 0:
                         new_q = 0
+                    else:
+                        if x in self.q:
+                            new_q = self.q[x]
+                        else:
+                            new_q = 0
 
                     if new_q > best_q:
                         chosen_action = action
                         best_q = new_q
 
-        print(chosen_action)
+        return chosen_action
 
 def train(n):
     """
